@@ -1,9 +1,7 @@
 package com.example.CIMAInspection.controller;
 
 import com.example.CIMAInspection.entity.User;
-import com.example.CIMAInspection.model.UserLogin;
-import com.example.CIMAInspection.model.UserLoginResponse;
-import com.example.CIMAInspection.model.UserSignUp;
+import com.example.CIMAInspection.model.*;
 import com.example.CIMAInspection.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 
 @Controller
+@CrossOrigin
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -31,29 +31,34 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@RequestBody UserLogin userLogin) {
         User user;
         UserLoginResponse userLoginResponse = new UserLoginResponse();
-        userLoginResponse.setMessage("Invalid User/Password!.");
+        userLoginResponse.setError(1);
         try {
             user = userService.loadUserByUsername(userLogin.getUsernameOrEmail());
         } catch (UsernameNotFoundException ex) {
-            return new ResponseEntity<>(userLoginResponse, HttpStatus.NON_AUTHORITATIVE_INFORMATION);
+            userLoginResponse.setMessage("Invalid UserName!");
+            return new ResponseEntity<>(userLoginResponse, HttpStatus.BAD_REQUEST);
         }
         if (passwordEncoder.matches(userLogin.getPassword(), user.getPassword())) {
             userLoginResponse.setMessage("User signed-in successfully!.");
             userLoginResponse.setUserId(user.getId());
+            userLoginResponse.setError(0);
             return new ResponseEntity<>(userLoginResponse, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(userLoginResponse, HttpStatus.NON_AUTHORITATIVE_INFORMATION);
+            userLoginResponse.setMessage("Incorrect Password!");
+            return new ResponseEntity<>(userLoginResponse, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping(value = {"/register", "/signup"})
     public ResponseEntity<?> registerUser(@RequestBody UserSignUp userSignUp){
-        System.out.println("here");
+        ErrorResponse userSignUpResponse = new ErrorResponse();
         List<Object> userExists = userService.isUserPresent(userSignUp);
 
         // add check for email exists in DB
         if((Boolean) userExists.get(0)){
-            return new ResponseEntity<>(userExists.get(1), HttpStatus.BAD_REQUEST);
+            userSignUpResponse.setError(1);
+            userSignUpResponse.setMessage(userExists.get(1).toString());
+            return new ResponseEntity<>(userSignUpResponse, HttpStatus.BAD_REQUEST);
         }
 
         // create user object
@@ -66,8 +71,10 @@ public class AuthController {
         user.setPassword(encodedPassword);
 
         userService.saveUser(user);
+        userSignUpResponse.setError(0);
+        userSignUpResponse.setMessage("User registered successfully");
 
-        return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+        return new ResponseEntity<>(userSignUpResponse, HttpStatus.OK);
 
     }
 }

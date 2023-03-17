@@ -11,5 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserLoginResponse {
     private int userId;
+    private int error;
     private String message;
 }

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/client")
 public class ClientController {
 
@@ -33,7 +34,7 @@ public class ClientController {
     @GetMapping("/clientData/{clientId}")
     public ResponseEntity<?> getClientByClientId(@PathVariable int clientId) {
         if(!clientService.isClientExist(clientId)) {
-            return new ResponseEntity<>("Client doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist"), HttpStatus.BAD_REQUEST);
         }
 
         Client client = clientService.getClientDataByClientId(clientId);
@@ -44,7 +45,7 @@ public class ClientController {
     @PostMapping(value = {"/clientData"})
     public ResponseEntity<?> saveClientData(@RequestBody ClientData clientData) {
         if(!userService.isUserExists(clientData.getUserId())) {
-            return new ResponseEntity<>("User doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "User doesn't exist"), HttpStatus.BAD_REQUEST);
         }
 
         Client client = new Client();
@@ -69,7 +70,7 @@ public class ClientController {
     @PutMapping("/clientData/{clientId}")
     public ResponseEntity<?> updateClientData(@RequestBody ClientData clientData, @PathVariable int clientId) {
         if(!clientService.isClientExist(clientId)) {
-            return new ResponseEntity<>("Client doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist"), HttpStatus.BAD_REQUEST);
         }
 
         Client client = new Client();
@@ -95,7 +96,7 @@ public class ClientController {
     @PostMapping("/partData")
     public ResponseEntity<?> savePartData(@RequestBody PartData partData) {
         if(!clientService.isClientExist(partData.getClientId())) {
-            return new ResponseEntity<>("Client doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist"), HttpStatus.BAD_REQUEST);
         }
 
         com.example.CIMAInspection.entity.PartData existingPartData = partDataService.getPartDataByClientId(partData.getClientId());
@@ -121,12 +122,12 @@ public class ClientController {
     @GetMapping("/partData/{clientId}")
     public ResponseEntity<?> getPartDataByClientId(@PathVariable int clientId) {
         if(!clientService.isClientExist(clientId)) {
-            return new ResponseEntity<>("Client doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist"), HttpStatus.BAD_REQUEST);
         }
 
         com.example.CIMAInspection.entity.PartData partData = partDataService.getPartDataByClientId(clientId);
         if(partData == null) {
-            return new ResponseEntity<>(new ErrorResponse("CLI-003", "Part Data for this client doesn't exist!"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ErrorResponse(1, "Part Data for this client doesn't exist!"), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(partData, HttpStatus.OK);
@@ -164,12 +165,12 @@ public class ClientController {
     @GetMapping("/calibrationData/{clientId}")
     public ResponseEntity<?> getCalibrationDataByClientId(@PathVariable int clientId) {
         if(!clientService.isClientExist(clientId)) {
-            return new ResponseEntity<>("Client doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist"), HttpStatus.BAD_REQUEST);
         }
 
         CalibrationData calibrationData = calibrationDataService.getCalibrationData(clientId);
         if(calibrationData == null) {
-            return new ResponseEntity<>(new ErrorResponse("CLI-003", "Part Data for this client doesn't exist!"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ErrorResponse(1, "Part Data for this client doesn't exist!"), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(calibrationData, HttpStatus.OK);
@@ -202,12 +203,12 @@ public class ClientController {
     @GetMapping("/inspections/{clientId}")
     public ResponseEntity<?> getInspections(@PathVariable int clientId) {
         if(!clientService.isClientExist(clientId)) {
-            return new ResponseEntity<>("Client doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist"), HttpStatus.BAD_REQUEST);
         }
 
         List<com.example.CIMAInspection.entity.Inspection> inspections = inspectionService.getInspectionsForClient(clientId);
         if(inspections == null) {
-            return new ResponseEntity<>(new ErrorResponse("CLI-004", "Part Data for this client doesn't exist!"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ErrorResponse(1, "Part Data for this client doesn't exist!"), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(inspections, HttpStatus.OK);
@@ -217,7 +218,7 @@ public class ClientController {
     public ResponseEntity<?> getClient(@PathVariable int userId, @PathVariable String clientName) {
         Client clientData = clientService.getClientDataByClientName(clientName);
         if(clientData == null) {
-            return new ResponseEntity<>("Client doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist"), HttpStatus.BAD_REQUEST);
         }
 
         com.example.CIMAInspection.model.Client client = clientService.getClient(clientName, clientData.getUserId());
