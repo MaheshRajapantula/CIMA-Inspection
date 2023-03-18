@@ -4,6 +4,7 @@ import com.example.CIMAInspection.entity.CalibrationData;
 import com.example.CIMAInspection.entity.Client;
 import com.example.CIMAInspection.entity.Inspection;
 import com.example.CIMAInspection.entity.PartData;
+import com.example.CIMAInspection.model.Search;
 import com.example.CIMAInspection.repository.CalibrationDataRepository;
 import com.example.CIMAInspection.repository.ClientRepository;
 import com.example.CIMAInspection.repository.InspectionRepository;
@@ -34,9 +35,9 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public com.example.CIMAInspection.model.Client getClient(String clientName, int userId) {
+    public com.example.CIMAInspection.model.Client getClient(Search search, int userId) {
         com.example.CIMAInspection.model.Client client = new com.example.CIMAInspection.model.Client();
-        Optional<Client> clientData = clientRepository.findByClientName(clientName);
+        Optional<Client> clientData = clientRepository.findByClientNameAndUserIdAndLocationAndDate(search.getClientName(), userId, search.getLocation(), search.getDate());
         if(clientData.isEmpty()) {
             return null;
         }
@@ -54,6 +55,12 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Client getClientDataByClientName(String clientName) {
         Optional<Client> clientData = clientRepository.findByClientName(clientName);
+        return clientData.orElse(null);
+    }
+
+    @Override
+    public Client getClientDataBySearchDetailsAndUserId(Search search, int userId) {
+        Optional<Client> clientData = clientRepository.findByClientNameAndUserIdAndLocationAndDate(search.getClientName(), userId, search.getLocation(), search.getDate());
         return clientData.orElse(null);
     }
 

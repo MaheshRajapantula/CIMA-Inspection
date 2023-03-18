@@ -11,19 +11,10 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientData {
-
+public class Search {
     private int userId;
-    private String client;
+    private String clientName;
     private String location;
     private LocalDate date;
-    private String purchaseOrderNumber;
-    private String cima;
-    private String examNumber;
-    private String part;
-    private String report;
-    private String specification;
-    private String procedure;
-    private String acceptanceCriteria;
 
 }

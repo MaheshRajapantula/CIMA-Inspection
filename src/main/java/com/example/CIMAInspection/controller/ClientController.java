@@ -2,10 +2,7 @@ package com.example.CIMAInspection.controller;
 
 import com.example.CIMAInspection.entity.CalibrationData;
 import com.example.CIMAInspection.entity.Client;
-import com.example.CIMAInspection.model.ClientData;
-import com.example.CIMAInspection.model.ErrorResponse;
-import com.example.CIMAInspection.model.Inspection;
-import com.example.CIMAInspection.model.PartData;
+import com.example.CIMAInspection.model.*;
 import com.example.CIMAInspection.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,7 +44,15 @@ public class ClientController {
         if(!userService.isUserExists(clientData.getUserId())) {
             return new ResponseEntity<>(new ErrorResponse(1, "User doesn't exist"), HttpStatus.BAD_REQUEST);
         }
-
+        Search search = new Search();
+        search.setUserId(clientData.getUserId());
+        search.setClientName(clientData.getClient());
+        search.setLocation(clientData.getLocation());
+        search.setDate(clientData.getDate());
+        Client existingClientData = clientService.getClientDataBySearchDetailsAndUserId(search, search.getUserId());
+        if(existingClientData != null) {
+            return new ResponseEntity<>(new ErrorResponse(1, "Client with same name, location and date already saved for this user"), HttpStatus.BAD_REQUEST);
+        }
         Client client = new Client();
         client.setUserId(clientData.getUserId());
         client.setClientName(clientData.getClient());
@@ -214,14 +219,14 @@ public class ClientController {
         return new ResponseEntity<>(inspections, HttpStatus.OK);
     }
 
-    @GetMapping("/search/{userId}/{clientName}")
-    public ResponseEntity<?> getClient(@PathVariable int userId, @PathVariable String clientName) {
-        Client clientData = clientService.getClientDataByClientName(clientName);
+    @PostMapping("/search")
+    public ResponseEntity<?> getClient(@RequestBody Search search) {
+        Client clientData = clientService.getClientDataBySearchDetailsAndUserId(search, search.getUserId());
         if(clientData == null) {
-            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorResponse(1, "Client doesn't exist for this user"), HttpStatus.BAD_REQUEST);
         }
 
-        com.example.CIMAInspection.model.Client client = clientService.getClient(clientName, clientData.getUserId());
+        com.example.CIMAInspection.model.Client client = clientService.getClient(search, clientData.getUserId());
 
         return new ResponseEntity<>(client, HttpStatus.OK);
     }

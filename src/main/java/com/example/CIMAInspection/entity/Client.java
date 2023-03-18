@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class Client {
     private String location;
     @NotNull(message = "Date cannot be empty")
     @Column(name = "date")
-    private LocalDateTime date;
+    private LocalDate date;
     @Column(name = "purchase_order_number")
     private String purchaseOrderNumber;
     @Column(name = "cima")
